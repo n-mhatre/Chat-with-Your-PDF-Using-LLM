@@ -136,7 +136,7 @@ def main():
 
     # Sidebar for CRUD operations
     st.sidebar.title("Operations to perform")
-    operation = st.sidebar.radio("Choose an operation", ["Create", "Read", "Update", "Delete", 'Check jobs'])
+    operation = st.sidebar.radio("Choose an operation", [ "Read", 'Check jobs', "Create", "Update", "Delete"])
 
     if operation == "Create":
         # Implement Create operation fields and logic
@@ -289,7 +289,7 @@ def main():
                             left join timeline t on t.id = j.timelineid
                         -- group by 2,3,4,5,6, 7
                         order by  j.id desc
-                        limit 500
+                        limit 5000
                         """
         jobposts_data = fetch_data(query, conn)
         jobposts_data = jobposts_data.drop_duplicates(subset=['title', 'location' , 'postDate', 'startDate', 'deadline', 'openingDate']).head(50)
