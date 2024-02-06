@@ -1,0 +1,139 @@
+Build LLM Agent combining Reasoning and Action (ReAct) framework using LangChain
+Ashish Kumar Jain
+
+Most of the people see LLM as a knowledge source which is having good understanding of language and is built using internet data. So people can ask some questions and LLMs can return the answer. But one interesting thing about LLM is that they can be used as a reasoning engine. LLMs can do reasoning and can take action through different techniques.
+
+Complex reasoning can be challenging for LLMs, especially that includes multiple steps. Even these reasoning can be challenging for the larger model (GPT4) which shows very good performance on many other tasks. One of way to solve complex reasoning LLM’s issue is using Chain-Of-Thought prompting. You can also go through research paper on this by Google Brain team.
+
+Chain-of-Thought Prompting
+Chain of thought prompting enables LLMs to tackle complex arithmetic, commonsense and symbolic reasoning tasks. See below the image.
+
+
+If you refer above image you can see that chain-of-thought prompting outperforms standard prompting. In the standard prompting even using the one shot inference, model output is not correct. On the right side of image, Chain-of-thought prompting also uses one shot inference while prompting but it uses reasoning in the example (see blue bold). Lets consider our own thought process when solving a complicated reasoning task such as a multi-step math word problem. It is typical to decompose the problem into intermediate steps and solve each before giving the final answer. That’s what chain-of-thought prompting does, it break downs the problem in multiple steps and then solve the problem. It helps model to think like a human. If we see the result on the right side, the model has now produced a correct and transparent response that explains its reasoning steps, following a similar structure as the one-shot example. By structuring the examples in this way, we are essentially teaching the model how to reason through the task to reach a solution. The model now correctly determines that nine apples are left. Thinking through the problem has helped the model come to the correct answer. We can use chain of thought prompting to help LLMs improve their reasoning for other types of problems.
+
+Most applications will require the LLM not to do only reasoning, even reasoning steps might requires calling multiple external data sources and applications. One of the techniques or framework is called ReAct (Reasoning and actions) in which LLM can plan out these reasoning steps and execute those steps.
+
+ReAct
+ReAct is technique which enable LLMs to do reasoning and take task specific actions. It combines chain of thought reasoning with action planning.It enables LLMs to generate reasoning traces and task-specific actions, leveraging the synergy between them. This approach demonstrates superior performance over baselines in various tasks, overcoming issues like hallucination and error propagation.
+
+We can have question that we need to solve and that requires advanced reasoning and multiple steps to solve. LLM can reason through this question and take actions that move us closer to a solution. To solve this, In React framework LLM’s takes iterative process to come up with the solution. For a given question, first LLM’s generate a thought about the problem. Thought is a reasoning step that identifies how LLM will tackle the problem and identify an action to take. Based on thought LLM’s can take some actions. Action is external task that LLM can carry out from an allowed set of actions. These actions can be API calls to get the answer like calling Wikipedia API to search the data. Based on the new information provided by action result, LLM’s observe the result. If LLM understand that it got the answer then finish with the question otherwise based on the observation LLM again generate new thought and process continues. This process continues till LLMs got the answer. Please see below diagram.
+
+
+In the ReAct framework, the LLM can choose from a limited number of actions that are defined by a set of instructions that is pre-pended to the LLM’s questions prompt text.
+
+For example the React research paper covers three action space. It design a simple Wikipedia web API with three types of actions to support interactive information retrieval.
+
+search[entity] which returns the first 5 sentences from the corresponding entity wiki page if it exists, or else suggests top-5 similar entities from the Wikipedia search engine
+lookup[string] which would return the next sentence in the page containing string, simulating Ctrl+F functionality on the browser.
+finish[answer] which would finish the current task with answer
+Lets understand this with an example.
+
+Question What profession does Amitabh Bachchan and Shahrukh Khan have in common?
+
+ReAct Prompt Template
+We can come up with standard template for ReAct for queries. We are asking question with LLM inside the prompt with instruction and some examples.
+
+
+ReAct Execution Flow
+Model can start its execution by learning from the given example. It can start its process by taking first thought.
+
+Thought1 I need to search Amitabh Bachchan and Shahrukh Khan, find their profession, then find the profession they have in common.
+
+Action1 Search[Amitabh Bachchan]
+
+Due to this action, there will be a Wikipedia API call to get the content related to Amitabh Bachchan.
+
+Observation1 Amitabh Bachchan (pronounced [əmɪˈt̪ɑːbʱ ˈbətːʃən]; born as Amitabh Srivastava; 11 October 1942) is an Indian actor, film producer, television host, occasional playback singer, and former politician actively engaged in Hindi cinema. With a cinematic journey spanning over five decades, he has played pivotal roles in over 200 films. …………….
+
+Based on the observation, model can come up with new thought.
+
+Thought2 Professions of Amitabh Bachchan are actor, film producer, and television host. I need to search Shahrukh Khan next and find his professions.
+
+Action2 Search[Shahrukh Khan]
+
+Observation2 Shah Rukh Khan (pronounced [ˈʃɑːɦɾʊx xɑːn]; born 2 November 1965), also known by the initialism SRK, is an Indian actor and film producer who works in Hindi films. Referred to in the media as the \”Baadshah of Bollywood\” and \”King Khan\”, he has appeared in more than 90 films, and earned numerous accolades, including 14 Filmfare Awards. He has been awarded the Padma Shri by the Government of India…..
+
+Thought3 Professions of Shahrukh Khan are actor and film producer. So the profession Amitabh Bachchan and Shahrukh Khan have in common is actor and film producer.
+
+Action3 Finish[actor and film producer]
+
+Final answer — actor and film producer.
+
+The ReAct framework shows one way to use LLM to power an application through reasoning and action planning. We can extend this strategy to our application by creating different examples that can work through the decisions and actions that can take place in our applications.
+
+Langchain
+Now putting the things in action, thankfully we already have open-source framework which are developing components which can be reused in different applications for helping us faster application development. One of the Langchain. LangChain framework provides us modular pieces that contain the components necessary to work with LLMs. These components include prompt templates for many different use cases and also includes pre-built tools that enable us to carry out a wide variety of tasks, including calls to external datasets and various APIs. Connecting a selection of these individual components together results in a chain. LangChain also has another concept called Agent, that we can use to interpret the input from the user and determine which tool or tools to use to complete the task.
+
+Good new is that Langchain currently include the agent for ReAct also.
+
+ReAct Implementation
+In the blog we will use OPENAI ChatGPT model. We can integrate the ChatGPT model in our application using API provided by OPENAI. For accessing the API, we need to register with OPENAI and get the api key for the same. Please keep in mind two things before running below code.
+
+1-) OPENAI will charge the money for hitting their API. You can find more details here.
+
+2-) You also need internet connection where you are allowed to access OPENAI API and Wikipedia API programmatically.
+
+We will use Langchain framework and python code for illustration purpose. You can use this code for your applications.You can also refer Langchain site for more code references. You also need to install below required python library to run the code.
+
+pip install openai
+pip install langchain
+pip install wikipedia
+Lets start building the application.
+
+1-) First we need to load the key from environment variable and set into openai. You will get this key while registering with OPENAI.
+
+import openai
+import os
+openai.api_key  = os.getenv('OPENAI_API_KEY')
+2-) Langchain has concept of Agent. The core idea of agent is to use a language model to choose a sequence of actions to take. In agent, a language model is used as a reasoning engine to determine which actions to take and in which order. Langchain has inbuilt agent called DocStore Explorer agent whose functionality aligns with the original ReAct research paper, for the Wikipedia use case.
+
+DocStoreExplorer agent interacts with a document storage system (like Wikipedia), using two specific tools , a Search tool and a Lookup tool. The Search tool is responsible for locating a document, whereas the Lookup tool retrieves a term from the most recently discovered document. We can initialize this doc store with Wikipedia as a document store.
+
+from langchain.agents.react.base import DocstoreExplorer
+from langchain.docstore import Wikipedia
+docstore = DocstoreExplorer(Wikipedia())
+3-) Another concept which Langchain provides is called tools. Tools are interfaces that an agent can use to interact with the outer world. We can create our own tool for Wikipedia API. In the tool specification, we can specify which function agent need to call for interaction with outer world.
+
+from langchain.agents import Tool 
+tools = [
+    Tool(
+        name="Search",
+        func=docstore.search,
+        description="useful for when you need to ask with search",
+    ),
+    Tool(
+        name="Lookup",
+        func=docstore.lookup,
+        description="useful for when you need to ask with lookup",
+    ),
+]
+4-) Lets have GPT-4 model as a LLM for our application.
+
+from langchain.chat_models import ChatOpenAI
+llm = ChatOpenAI(model_name="gpt-4")
+5-) Lets initialize agent with tools, llm and agent with all the information.
+
+from langchain.agents import AgentType, initialize_agent
+react = initialize_agent(tools, llm, agent=AgentType.REACT_DOCSTORE, verbose=True)
+6-) We can pass our question to our ReAct agent. Behind the scene, Agent will do interaction with OPENAI model using API. It will also pass tools information (description of functions ) to the model as an additional arguments (in case of OPENAI its called OPENAI functions) with prompt. If model want to take search or lookup actions then it returns that function description with function arguments (if any) to the agent. Then agent call that function using the tool and call Model again with that information. It will do this in iterative manner as explained above. All this magic is done by agent for us.
+
+question = "What profession does Amitabh Bachchan and Shahrukh Khan have in common?"
+result = react.run(question)
+We can also go though logs generated by Langchain to understand whats going under the hood.
+
+7-) We can finally get the answer
+
+actor and film producer
+Thanks for reading this blog. Hope this will help you to understand the ReAct. You can download the source code for this blog from my Git repository.
+
+References —
+
+1-) https://python.langchain.com/docs/get_started/introduction.html
+
+2-) https://learn.deeplearning.ai/functions-tools-agents-langchain
+
+3-) https://www.coursera.org/learn/generative-ai-with-llms/
+
+4-) Chain of Thought research paper — https://arxiv.org/pdf/2201.11903.pdf
+
+5-) ReAct Research paper — https://arxiv.org/pdf/2210.03629.pdf
