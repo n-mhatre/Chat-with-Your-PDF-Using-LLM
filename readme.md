@@ -32,7 +32,7 @@ pip install langchain langchain_community langchain_text_splitters langchain_ope
 1. **Clone the Repository:**
 
    ```bash
-   git clone https://github.com/yourusername/react-agent-langchain.git
+   git clone https://github.com/n-mhatre/Chat-with-Your-PDF-Using-LLM.git
    
    cd react-agent-langchain
 2. **Environment Variables:**    
@@ -92,5 +92,4 @@ pip install langchain langchain_community langchain_text_splitters langchain_ope
 
 
 ## 🙏 Acknowledgments
-- [📝  Build LLM Agent Combining Reasoning and Action (ReAct) Framework Using LangChain](https://medium.com/@jainashish.079/build-llm-agent-combining-reasoning-and-action-react-framework-using-langchain-379a89a7e881) for inspiration and guidance.
-- Feel free to connect and discuss more!
+I would like to extend our heartfelt thanks to the open-source community and contributors who have developed and maintained the LangChain library and its associated tools. Their dedication and innovation have made it possible to explore the exciting possibilities of language models and document processing. Special thanks to the developers behind the integration of LLMs with vector databases, which has significantly enhanced the capabilities of this project. Your work continues to inspire and empower developers worldwide.
